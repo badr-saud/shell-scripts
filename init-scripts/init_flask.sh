@@ -18,17 +18,17 @@ python3 -m venv .venv
 # Activate the virtual environment
 source .venv/bin/activate
 
-# Ask for a specific version of Django
+# Ask for a specific version of Flask
 echo "Do you want to use a specific version of Flask? (y/n)"
 read -r is_version
 
-# Write Django version to requirements.txt if specified
+# Write Flask version to requirements.txt if specified
 if [[ "$is_version" == "y" || "$is_version" == "Y" ]]; then
     echo "Enter the version number:"
     read -r version_number
-    echo "Flask==$version_number" >>requirements.txt
+    echo "Flask==$version_number" > requirements.txt  # Use > instead of >> to overwrite
 else
-    echo "Flask" >>requirements.txt
+    echo "Flask" > requirements.txt  # Use > instead of >> to overwrite
     echo "No specific version number provided, using the latest version."
 fi
 
@@ -41,12 +41,39 @@ if [[ "$add_packages" == "y" || "$add_packages" == "Y" ]]; then
 
     # Loop through the array of packages and append each to requirements.txt
     for value in "${packages_arr[@]}"; do
-        echo "$value" >>requirements.txt
+        echo "$value" >> requirements.txt
     done
 else
     echo "No additional packages will be installed."
 fi
 
 pip install -r requirements.txt
+
+# Directories and project structure
+mkdir app
+touch app/__init__.py
+
+# Prompt for the name of the main file
+echo "The name of the main file:"
+echo "1. (y): same as project name"
+echo "2. (write the name)"
+read -r file_name_input
+
+if [[ "$file_name_input" == "y" || "$file_name_input" == "Y" ]]; then
+    touch "$P_NAME.py"
+else
+    touch "$file_name_input.py"
+fi
+
+# Corrected usage of echo to redirect into app/__init__.py
+cat <<EOF > app/__init__.py
+from flask import Flask
+
+app = Flask(__name__)
+
+from app import routes
+EOF
+
+touch app/routes.py
 
 echo "Flask project initialized in $P_NAME"
