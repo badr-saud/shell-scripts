@@ -8,9 +8,6 @@ fi
 
 P_NAME=$1
 
-echo "Do you want to enter additional packages? (y/n)"
-read -r add_packages
-
 # Create the project directory
 mkdir "$P_NAME"
 cd "$P_NAME" || exit
@@ -21,16 +18,30 @@ python3 -m venv .venv
 # Activate the virtual environment
 source .venv/bin/activate
 
-# Write 'flask' to requirements.txt
-echo "flask" >> requirements.txt
+# Ask for a specific version of Django
+echo "Do you want to use a specific version of Flask? (y/n)"
+read -r is_version
+
+# Write Django version to requirements.txt if specified
+if [[ "$is_version" == "y" || "$is_version" == "Y" ]]; then
+    echo "Enter the version number:"
+    read -r version_number
+    echo "Flask==$version_number" >>requirements.txt
+else
+    echo "Flask" >>requirements.txt
+    echo "No specific version number provided, using the latest version."
+fi
+
+echo "Do you want to enter additional packages? (y/n)"
+read -r add_packages
 
 if [[ "$add_packages" == "y" || "$add_packages" == "Y" ]]; then
     echo "Enter the packages you want to install (space-separated):"
     read -a packages_arr
 
     # Loop through the array of packages and append each to requirements.txt
-    for value in "${packages_arr[@]}"; do 
-        echo "$value" >> requirements.txt
+    for value in "${packages_arr[@]}"; do
+        echo "$value" >>requirements.txt
     done
 else
     echo "No additional packages will be installed."
@@ -39,4 +50,3 @@ fi
 pip install -r requirements.txt
 
 echo "Flask project initialized in $P_NAME"
-
